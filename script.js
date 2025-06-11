@@ -34,7 +34,7 @@ async function loadCharts() {
 
 function createLineChart(canvasId, labels, data1, data2, title) {
   const ctx = document.getElementById(canvasId).getContext("2d");
-  if (window[canvasId]) window[canvasId].destroy();
+  if (window[canvasId] instanceof Chart) window[canvasId].destroy();
   window[canvasId] = new Chart(ctx, {
     type: "line",
     data: {

@@ -1,119 +1,112 @@
 const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8BP6K4fEuxzoCELHufQsn4FRB66NL4R3PhEWTZ-yFdaSHAWtDyYsGPoyC0KGtKqtgyek9RgllGS8g/pub?gid=1548855059&single=true&output=csv";
 
-let chart10, chart50, chart200;
+document.getElementById("days").addEventListener("change", loadCharts);
 
-function createChart(ctx, label, labels, blueData, redData) {
-  return new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: labels,
+async function loadCharts() {
+  const days = parseInt(document.getElementById("days").value);
+  const response = await fetch(csvUrl);
+  const data = await response.text();
+  const rows = data.split("\n").slice(1).reverse().slice(0, days).reverse(); // latest N days
+  const labels = [], f=[], g=[], h=[], i=[], j=[], k=[], c=[], d=[], e=[];
+
+  rows.forEach(row => {
+    const cols = row.split(",");
+    labels.push(cols[0]);
+    f.push(parseFloat(cols[5]));
+    g.push(parseFloat(cols[6]));
+    h.push(parseFloat(cols[7]));
+    i.push(parseFloat(cols[8]));
+    j.push(parseFloat(cols[9]));
+    k.push(parseFloat(cols[10]));
+    c.push(parseFloat(cols[2]));
+    d.push(parseFloat(cols[3]));
+    e.push(parseFloat(cols[4]));
+  });
+
+  const chartConfigs = [
+    {
+      id: 'chart1',
+      title: '10(5)',
       datasets: [
-        {
-          label: label + ' Blue',
-          data: blueData,
-          borderColor: 'blue',
-          borderWidth: 2,
-          fill: false,
-          pointRadius: 0
-        },
-        {
-          label: label + ' Red',
-          data: redData,
-          borderColor: 'red',
-          borderWidth: 2,
-          fill: false,
-          pointRadius: 0
-        }
+        { label: '10 SMA %', data: f, borderColor: 'blue', fill: false },
+        { label: 'SMA5(10)', data: g, borderColor: 'red', fill: false }
       ]
     },
-    options: {
-      responsive: true,
-      plugins: {
-        title: {
-          display: true,
-          text: label
-        },
-        legend: {
-          display: false
-        }
-      },
-      scales: {
-        y: {
-          min: 0,
-          max: 100,
-          ticks: {
-            color: 'black'
-          },
-          grid: {
-            drawBorder: false
-          }
-        },
-        x: {
-          ticks: {
-            color: 'black',
-            maxTicksLimit: 10
-          }
-        }
-      },
-      elements: {
-        line: {
-          tension: 0.3
-        }
-      }
+    {
+      id: 'chart2',
+      title: '50(5)',
+      datasets: [
+        { label: '50 SMA %', data: h, borderColor: 'blue', fill: false },
+        { label: 'SMA5(50)', data: i, borderColor: 'red', fill: false }
+      ]
     },
-    plugins: [{
-      id: 'customZones',
-      beforeDraw: (chart) => {
-        const ctx = chart.ctx;
-        const yScale = chart.scales.y;
-        const area = chart.chartArea;
-
-        // Overbought (80–90) – dark red
-        ctx.fillStyle = '#8B0000';
-        ctx.fillRect(area.left, yScale.getPixelForValue(90), area.right - area.left, yScale.getPixelForValue(80) - yScale.getPixelForValue(90));
-
-        // Neutral (50) – black line
-        ctx.strokeStyle = 'black';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(area.left, yScale.getPixelForValue(50));
-        ctx.lineTo(area.right, yScale.getPixelForValue(50));
-        ctx.stroke();
-
-        // Oversold (10–20) – blue
-        ctx.fillStyle = '#0000CD';
-        ctx.fillRect(area.left, yScale.getPixelForValue(20), area.right - area.left, yScale.getPixelForValue(10) - yScale.getPixelForValue(20));
-      }
-    }]
-  });
-}
-
-function loadCharts() {
-  const daysToShow = parseInt(document.getElementById("daysInput").value) || 60;
-
-  Papa.parse(csvUrl, {
-    download: true,
-    header: true,
-    complete: function(results) {
-      const data = results.data.slice(-daysToShow);
-
-      const labels = data.map(row => row["Date"]);
-      const colF = data.map(row => parseFloat(row["10sma"]) || 0);
-      const colG = data.map(row => parseFloat(row["sma5(10)"]) || 0);
-      const colH = data.map(row => parseFloat(row["50sma"]) || 0);
-      const colI = data.map(row => parseFloat(row["sma5(50)"]) || 0);
-      const colJ = data.map(row => parseFloat(row["200ema"]) || 0);
-      const colK = data.map(row => parseFloat(row["sma5(200)"]) || 0);
-
-      if (chart10) chart10.destroy();
-      if (chart50) chart50.destroy();
-      if (chart200) chart200.destroy();
-
-      chart10 = createChart(document.getElementById('chart10'), "10(5)", labels, colF, colG);
-      chart50 = createChart(document.getElementById('chart50'), "50(5)", labels, colH, colI);
-      chart200 = createChart(document.getElementById('chart200'), "200(5)", labels, colJ, colK);
+    {
+      id: 'chart3',
+      title: '200(5)',
+      datasets: [
+        { label: '200 SMA %', data: j, borderColor: 'blue', fill: false },
+        { label: 'SMA5(200)', data: k, borderColor: 'red', fill: false }
+      ]
+    },
+    {
+      id: 'chart4',
+      title: 'Net 20 Day High',
+      datasets: [
+        { label: 'Net 20 High', data: c, backgroundColor: 'black', type: 'bar' }
+      ]
+    },
+    {
+      id: 'chart5',
+      title: 'Net 50 Day High',
+      datasets: [
+        { label: 'Net 50 High', data: d, backgroundColor: 'black', type: 'bar' }
+      ]
+    },
+    {
+      id: 'chart6',
+      title: 'Net 200 Day High',
+      datasets: [
+        { label: 'Net 200 High', data: e, backgroundColor: 'black', type: 'bar' }
+      ]
     }
+  ];
+
+  chartConfigs.forEach((cfg, index) => {
+    const ctx = document.getElementById(cfg.id).getContext('2d');
+    if (window[cfg.id]) window[cfg.id].destroy();
+    window[cfg.id] = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: cfg.datasets
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        aspectRatio: 1.6,
+        plugins: {
+          title: {
+            display: true,
+            text: cfg.title,
+            font: { size: 16 }
+          }
+        },
+        scales: {
+          y: {
+            grid: {
+              color: ctx => {
+                if (ctx.tick.value >= 80) return 'darkred';
+                if (ctx.tick.value <= 20) return 'blue';
+                if (ctx.tick.value === 50) return 'black';
+                return '#ccc';
+              }
+            }
+          }
+        }
+      }
+    });
   });
 }
 
+// Initial load
 loadCharts();

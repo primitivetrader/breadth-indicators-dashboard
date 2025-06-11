@@ -1,5 +1,8 @@
 const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8BP6K4fEuxzoCELHufQsn4FRB66NL4R3PhEWTZ-yFdaSHAWtDyYsGPoyC0KGtKqtgyek9RgllGS8g/pub?gid=1548855059&single=true&output=csv";
 
+// Create a global chart cache object
+const chartCache = {};
+
 document.getElementById("daySelector").addEventListener("input", loadCharts);
 
 async function loadCharts() {
@@ -34,8 +37,9 @@ async function loadCharts() {
 
 function createLineChart(canvasId, labels, data1, data2, title) {
   const ctx = document.getElementById(canvasId).getContext("2d");
-  if (window[canvasId]) window[canvasId].destroy();
-  window[canvasId] = new Chart(ctx, {
+  if (chartCache[canvasId]) chartCache[canvasId].destroy();
+
+  chartCache[canvasId] = new Chart(ctx, {
     type: "line",
     data: {
       labels,
@@ -69,8 +73,9 @@ function createLineChart(canvasId, labels, data1, data2, title) {
 
 function createHistogram(canvasId, labels, data, title) {
   const ctx = document.getElementById(canvasId).getContext("2d");
-  if (window[canvasId]) window[canvasId].destroy();
-  window[canvasId] = new Chart(ctx, {
+  if (chartCache[canvasId]) chartCache[canvasId].destroy();
+
+  chartCache[canvasId] = new Chart(ctx, {
     type: "bar",
     data: {
       labels,

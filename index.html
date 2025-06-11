@@ -6,43 +6,29 @@
   <title>Breadth Indicators Dashboard</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    }
-    h1 {
-      text-align: center;
-    }
-    .controls {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    .chart-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      justify-content: center;
-    }
-    .chart-container {
-      width: 100%;
-      max-width: 400px;
-    }
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    canvas { width: 100%; height: 300px; }
+    .chart-row { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 40px; }
+    .chart-container { flex: 1 1 30%; }
   </style>
 </head>
 <body>
   <h1>Breadth Indicators Dashboard</h1>
-  <div class="controls">
-    <label for="days">Select number of days to view:</label>
-    <input type="number" id="days" value="60" min="1" max="375"/>
+  <label for="daySelector">Select number of days to view: </label>
+  <input type="number" id="daySelector" value="60" min="1" max="375" />
+
+  <div class="chart-row">
+    <div class="chart-container"><canvas id="chart10"></canvas></div>
+    <div class="chart-container"><canvas id="chart50"></canvas></div>
+    <div class="chart-container"><canvas id="chart200"></canvas></div>
   </div>
-  <div class="chart-grid">
-    <div class="chart-container"><canvas id="chart1"></canvas></div>
-    <div class="chart-container"><canvas id="chart2"></canvas></div>
-    <div class="chart-container"><canvas id="chart3"></canvas></div>
-    <div class="chart-container"><canvas id="chart4"></canvas></div>
-    <div class="chart-container"><canvas id="chart5"></canvas></div>
-    <div class="chart-container"><canvas id="chart6"></canvas></div>
+
+  <div class="chart-row">
+    <div class="chart-container"><canvas id="chartNet20"></canvas></div>
+    <div class="chart-container"><canvas id="chartNet50"></canvas></div>
+    <div class="chart-container"><canvas id="chartNet200"></canvas></div>
   </div>
+
   <script src="script.js"></script>
 </body>
 </html>

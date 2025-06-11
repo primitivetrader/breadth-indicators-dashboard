@@ -59,10 +59,9 @@ function createLineChart(canvasId, labels, data1, data2, title) {
             },
             color: function (context) {
               const val = context.tick.value;
-              if (val >= 80) return "darkred";
-              if (val <= 20) return "blue";
-              if (val === 50) return "black";
-              return "gray";
+              return val >= 80 ? "darkred" :
+                     val <= 20 ? "blue" :
+                     val === 50 ? "black" : "gray";
             }
           }
         }

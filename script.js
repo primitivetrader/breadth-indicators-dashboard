@@ -2,8 +2,6 @@ const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ8BP6K4fEuxzoCE
 
 document.getElementById("daySelector").addEventListener("input", loadCharts);
 
-const chartRefs = {}; // Store chart instances here
-
 async function loadCharts() {
   const days = parseInt(document.getElementById("daySelector").value) || 60;
   const response = await fetch(csvUrl);
@@ -11,6 +9,7 @@ async function loadCharts() {
 
   const rows = data.split("\n").slice(1).filter(row => row.trim().length > 0);
   const parsed = rows.map(row => row.split(","));
+
   const recent = parsed.slice(-days);
 
   const labels = recent.map(row => row[0]);
@@ -20,6 +19,7 @@ async function loadCharts() {
   const i50 = recent.map(row => parseFloat(row[8]));
   const j200 = recent.map(row => parseFloat(row[9]));
   const k200 = recent.map(row => parseFloat(row[10]));
+
   const net20 = recent.map(row => parseFloat(row[2]));
   const net50 = recent.map(row => parseFloat(row[3]));
   const net200 = recent.map(row => parseFloat(row[4]));
@@ -28,52 +28,42 @@ async function loadCharts() {
   createLineChart("chart50", labels, h50, i50, "50(5)");
   createLineChart("chart200", labels, j200, k200, "200(5)");
 
-  createBarChart("chartNet20", labels, net20, "Net 20 High");
-  createBarChart("chartNet50", labels, net50, "Net 50 High");
-  createBarChart("chartNet200", labels, net200, "Net 200 High");
+  createHistogram("chartNet20", labels, net20, "Net 20 High");
+  createHistogram("chartNet50", labels, net50, "Net 50 High");
+  createHistogram("chartNet200", labels, net200, "Net 200 High");
 }
 
 function createLineChart(canvasId, labels, data1, data2, title) {
-  const ctx = document.getElementById(canvasId).getContext("2d");
-  if (chartRefs[canvasId]) chartRefs[canvasId].destroy();
-
-  chartRefs[canvasId] = new Chart(ctx, {
+  const canvas = document.getElementById(canvasId);
+  const ctx = canvas.getContext("2d");
+  if (canvas.chartInstance) {
+    canvas.chartInstance.destroy();
+  }
+  canvas.chartInstance = new Chart(ctx, {
     type: "line",
     data: {
       labels,
       datasets: [
-        {
-          label: `${title} Blue`,
-          data: data1,
-          borderColor: "blue",
-          fill: false
-        },
-        {
-          label: `${title} Red`,
-          data: data2,
-          borderColor: "red",
-          fill: false
-        }
+        { label: `${title} Blue`, data: data1, borderColor: "blue", fill: false },
+        { label: `${title} Red`, data: data2, borderColor: "red", fill: false }
       ]
     },
     options: {
       responsive: true,
       plugins: {
-        title: {
-          display: true,
-          text: title
-        }
+        title: { display: true, text: title }
       },
       scales: {
         y: {
           min: 0,
           max: 100,
           ticks: {
-            callback: function (val) {
-              if (val >= 80) return `🔴 ${val}`;
-              if (val <= 20) return `🔵 ${val}`;
-              if (val === 50) return `⚫ ${val}`;
-              return val;
+            color: (context) => {
+              const val = context.tick.value;
+              if (val >= 80) return "darkred";
+              if (val <= 20) return "blue";
+              if (val === 50) return "black";
+              return "gray";
             }
           }
         }
@@ -82,11 +72,13 @@ function createLineChart(canvasId, labels, data1, data2, title) {
   });
 }
 
-function createBarChart(canvasId, labels, data, title) {
-  const ctx = document.getElementById(canvasId).getContext("2d");
-  if (chartRefs[canvasId]) chartRefs[canvasId].destroy();
-
-  chartRefs[canvasId] = new Chart(ctx, {
+function createHistogram(canvasId, labels, data, title) {
+  const canvas = document.getElementById(canvasId);
+  const ctx = canvas.getContext("2d");
+  if (canvas.chartInstance) {
+    canvas.chartInstance.destroy();
+  }
+  canvas.chartInstance = new Chart(ctx, {
     type: "bar",
     data: {
       labels,
@@ -101,10 +93,7 @@ function createBarChart(canvasId, labels, data, title) {
     options: {
       responsive: true,
       plugins: {
-        title: {
-          display: true,
-          text: title
-        }
+        title: { display: true, text: title }
       }
     }
   });
